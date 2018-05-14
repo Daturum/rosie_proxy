@@ -64,3 +64,6 @@ gem 'rosie', github: 'Daturum/rosie'
 
 # DB
 gem 'pg'
+
+# Proxy
+gem 'rack-proxy', '~> 0.6.4'

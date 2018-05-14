@@ -29,3 +29,4 @@
 
 # Ignore config files
 /config/database.yml
+/config/proxy.yml

@@ -1,0 +1,22 @@
+development:
+  proxy_name1:
+    backend: http://localhost:3000
+    timeout: 60
+    streaming: false
+    ssl_verify_none: false
+    ssl_version: TLSv1_2
+
+  proxy_name1:
+    backend: unix://tmp/test.socket
+    timeout: 60
+    streaming: false
+    ssl_verify_none: false
+    ssl_version: TLSv1_2
+
+  google_proxy:
+    backend: https://www.google.com
+    timeout: 60
+    streaming: false
+    ssl_verify_none: false
+    ssl_version: TLSv1_2
+    http_host: 'www.google.com'
