@@ -25,21 +25,24 @@ module RosieProxy
         end
       end
 
-      result_proxy.first.to_i == HTTP_CODE_NOT_FOUND ?  result : result_proxy
+      result_proxy.first.to_i == HTTP_CODE_NOT_FOUND ?  result : replace_links(result_proxy, env)
     end
 
     private
 
     def handle_proxy_request(env)
       result = [HTTP_CODE_NOT_FOUND]
+      env['HTTP_X_ROSIE_PROXY'] = 'true'
+      env['HTTP_X_ROSIE_PROXY_HOST'] = env['HTTP_HOST']
+      env['HTTP_X_ROSIE_PROXY_SCHEME'] = env['rack.url_scheme']
+
       proxy_configs.each do |proxy_name, proxy_config|
         wrap_instance_variable(proxy_config) do
           wrap_http_headers(env, proxy_config) do
-          env['rack.backend'] = backend_uri(proxy_config)
-          env['rack.ssl_verify_none'] = proxy_config['rack.ssl_verify_none'] if proxy_config['ssl_verify_none']
-          env['http.read_timeout'] = proxy_config['timeout'] if proxy_config['timeout']
-
-          result = parent_perform_request(env)
+            env['rack.backend'] = backend_uri(proxy_config)
+            env['rack.ssl_verify_none'] = proxy_config['rack.ssl_verify_none'] if proxy_config['ssl_verify_none']
+            env['http.read_timeout'] = proxy_config['timeout'] if proxy_config['timeout']
+            result = parent_perform_request(env)
           end
         end
         break if result.first.to_i != HTTP_CODE_NOT_FOUND
@@ -82,6 +85,11 @@ module RosieProxy
       env['HTTP_HOST'] = proxy_config['http_host'] if proxy_config['http_host'].present?
       yield
       env['HTTP_HOST'] = prev_http_host
+    end
+
+    def replace_links(result, env)
+      result[2].map!{|s| s.is_a?(String) ? s.gsub(/(https?:)?\/\/#{Regexp.escape(env['HTTP_HOST'])}/, "//#{env['HTTP_X_ROSIE_PROXY_HOST']}") : s}
+      result
     end
   end
 end
