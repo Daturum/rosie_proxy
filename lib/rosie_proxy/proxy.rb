@@ -23,6 +23,8 @@ module RosieProxy
         else
           raise error
         end
+      rescue ActionController::InvalidAuthenticityToken => error
+        result_proxy = handle_proxy_request(env)
       end
 
       result_proxy.first.to_i == HTTP_CODE_NOT_FOUND ?  result : replace_links(result_proxy, env)
