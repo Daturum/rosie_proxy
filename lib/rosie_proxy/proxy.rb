@@ -90,7 +90,8 @@ module RosieProxy
     end
 
     def replace_links(result, env)
-      result[2].map!{|s| s.is_a?(String) ? s.gsub(/(https?:)?\/\/#{Regexp.escape(env['HTTP_HOST'])}/, "//#{env['HTTP_X_ROSIE_PROXY_HOST']}") : s}
+      request = ActionDispatch::Request.new(env)
+      result[2].map!{|s| s.is_a?(String) ? s.gsub(/(https?:)?\/\/#{Regexp.escape(env['HTTP_HOST'])}/, "#{request.scheme}://#{env['HTTP_X_ROSIE_PROXY_HOST']}") : s}
       result
     end
   end
